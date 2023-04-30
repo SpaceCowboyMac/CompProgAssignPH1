@@ -1,0 +1,91 @@
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+public class EarthquakeFrame extends JFrame
+{
+
+    List<Earthquake> allEarthquakes;
+    JCheckBox type1CheckBox;
+    JCheckBox type2CheckBox;
+    JComboBox<String> searchByComboBox;
+    JTextField searchForTextField;
+    JComboBox<String> chooseClassComboBox;
+
+    public EarthquakeFrame(String title, List < Earthquake > allEarthquakes)
+    {
+        super(title);
+        this.allEarthquakes = allEarthquakes;
+
+        // create search panel
+        JPanel searchPanel = new JPanel();
+        type1CheckBox = new JCheckBox("Type 1");
+        type2CheckBox = new JCheckBox("Type 2");
+        searchByComboBox = new JComboBox<>(new String[]{"Id", "Place", "Year", "Magnitude Class"});
+        searchForTextField = new JTextField();
+        chooseClassComboBox = new JComboBox<>(new String[]{"Classified", "Unclassified"});
+        searchByComboBox.addActionListener(e ->
+        {
+            String selectedCategory = (String) searchByComboBox.getSelectedItem();
+            if (selectedCategory.equals("Magnitude Class")) {
+                searchForTextField.setEnabled(false);
+                chooseClassComboBox.setEnabled(true);
+            } else {
+                searchForTextField.setEnabled(true);
+                chooseClassComboBox.setEnabled(false);
+            }
+        });
+        JButton searchButton = new JButton("Search");
+        searchButton.addActionListener(e ->
+        {
+            if (!type1CheckBox.isSelected() && !type2CheckBox.isSelected()) {
+                JOptionPane.showMessageDialog(this, "Please select at least one earthquake type");
+                return;
+            }
+            String searchForValue = searchForTextField.getText();
+            if (searchForValue.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a value to search");
+                return;
+            }
+            String selectedCategory = (String) searchByComboBox.getSelectedItem();
+            List<Earthquake> results = new ArrayList<>();
+            switch (selectedCategory) {
+                case "Id":
+                    for (Earthquake earthquake : allEarthquakes) {
+                        if ((type1CheckBox.isSelected())
+                                || (type2CheckBox.isSelected())) {
+                            if (earthquake.getId().equals(searchForValue)) {
+                                results.add(earthquake);
+                            }
+                        }
+                    }
+                    break;
+                case "Place":
+                    for (Earthquake earthquake : allEarthquakes) {
+                        if ((type1CheckBox.isSelected())
+                                || (type2CheckBox.isSelected())) {
+                            if (earthquake.getPlace().equals(searchForValue)) {
+                                results.add(earthquake);
+                            }
+                        }
+                    }
+                    break;
+                case "Year":
+                    int year = Integer.parseInt(searchForValue);
+                    if (year < 0 || year > LocalDate.now().getYear()) {
+                        JOptionPane.showMessageDialog(this, "Please enter a valid year to search");
+                        return;
+                    }
+            }
+        });
+    }
+}
